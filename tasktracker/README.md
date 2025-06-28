@@ -31,7 +31,7 @@ java Main list
 ```
 
 ### Listing tasks by status
-``
+```
 java Main list done
 java Main list todo
 java Main list in-progress
