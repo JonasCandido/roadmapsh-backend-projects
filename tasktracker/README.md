@@ -3,6 +3,10 @@
 A CLI app to track your tasks and manage your to-do list.<br>
 Project idea: https://roadmap.sh/projects/task-tracker
 
+## Requirements
+
+- Java(OpenJDK) 17 or higher
+
 ## How to run the project
 ```
 javac *.java
