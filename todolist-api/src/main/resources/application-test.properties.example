@@ -1,0 +1,16 @@
+# Database config
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.jpa.hibernate.ddl-auto=update
+
+# JPA/Hibernate config
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/seu_banco
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+spring.jpa.hibernate.ddl-auto=update
+
+# open-in-view
+spring.jpa.open-in-view=false
