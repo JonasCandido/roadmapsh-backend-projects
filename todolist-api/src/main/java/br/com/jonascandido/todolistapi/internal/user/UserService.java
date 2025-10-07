@@ -12,15 +12,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
     public User addUser(User user) {
 
         // Validate unique email
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email já existe");
+            throw new IllegalArgumentException("Email already exists");
         }
 
         return userRepository.save(user);

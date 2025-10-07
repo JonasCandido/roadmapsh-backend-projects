@@ -23,20 +23,6 @@ class UserServiceTest {
     }
 
     // Unit tests
-    
-    @Test
-    void testFindAll() {
-        User user1 = new User("Alice", "alice@example.com", "123456");
-        User user2 = new User("Bob", "bob@example.com", "123456");
-
-        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
-
-        List<User> users = userService.findAll();
-
-        assertEquals(2, users.size());
-        assertEquals("Alice", users.get(0).getName());
-        verify(userRepository, times(1)).findAll();
-    }
 
     @Test
     void testAddUser_Success() {
@@ -62,7 +48,7 @@ class UserServiceTest {
             userService.addUser(user);
         });
 
-        assertEquals("Email já existe", exception.getMessage());
+        assertEquals("Email already exists", exception.getMessage());
         verify(userRepository).existsByEmail(user.getEmail());
         verify(userRepository, never()).save(any());
     }
