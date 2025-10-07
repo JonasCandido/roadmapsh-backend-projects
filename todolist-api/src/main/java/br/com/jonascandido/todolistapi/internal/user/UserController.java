@@ -2,6 +2,9 @@ package br.com.jonascandido.todolistapi.internal.user;
 
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
 @RestController
 public class UserController {
 
@@ -12,7 +15,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User createUser(@RequestBody User user) {
-        return userService.addUser(user);
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User savedUser = userService.addUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 }
