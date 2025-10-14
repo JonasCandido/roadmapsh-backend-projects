@@ -1,7 +1,8 @@
 package br.com.jonascandido.todolistapi.internal.user;
 
+import br.com.jonascandido.todolistapi.internal.user.User;
+import br.com.jonascandido.todolistapi.internal.todostatus.TodoStatus;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class UserService {
