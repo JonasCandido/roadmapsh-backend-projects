@@ -31,23 +31,25 @@ class TodoServiceTest {
 
     @Test
     void testAddTodo_Success() {
-        User user = new User("Charlie", "charlie@example.com", "123456");
-        TodoStatus pendingStatus = new TodoStatus("Pending");
-        Todo todo = new Todo("Laundry", "Do laundry", user, pendingStatus);
+    	User user = new User("Charlie", "charlie@example.com", "123456");
+    	TodoStatus pendingStatus = new TodoStatus("Pending");
+    	Todo todo = new Todo("Laundry", "Do laundry", user, pendingStatus);
 
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        when(todoStatusRepository.findById(pendingStatus.getId())).thenReturn(Optional.of(pendingStatus));
-        when(todoRepository.save(todo)).thenReturn(todo);
+    	when(userRepository.existsById(user.getId())).thenReturn(true);
+    
+    	when(todoStatusRepository.findByName(pendingStatus.getName()))
+        	.thenReturn(Optional.of(pendingStatus));
+    
+    	when(todoRepository.save(todo)).thenReturn(todo);
 
-        Todo savedTodo = todoService.createTodo(todo);
+    	Todo savedTodo = todoService.createTodo(todo);
 
-        assertEquals(todo.getTitle(), savedTodo.getTitle());
-        assertEquals(user, savedTodo.getUser());
-        assertEquals(pendingStatus, savedTodo.getStatus());
+    	assertEquals(todo.getTitle(), savedTodo.getTitle());
+    	assertEquals(user, savedTodo.getUser());
+    	assertEquals(pendingStatus, savedTodo.getStatus());
 
-        verify(userRepository).existsById(user.getId());
-        verify(todoStatusRepository).findById(pendingStatus.getId());
-        verify(todoRepository).save(todo);
-    }
-
+    	verify(userRepository).existsById(user.getId());
+    	verify(todoStatusRepository).findByName(pendingStatus.getName());
+    	verify(todoRepository).save(todo);
+   }
 }

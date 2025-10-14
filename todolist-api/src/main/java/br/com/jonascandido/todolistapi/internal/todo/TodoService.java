@@ -30,7 +30,7 @@ public class TodoService {
         if (!userRepository.existsById(todo.getUser().getId())) {
             throw new IllegalArgumentException("Invalid User");
         }
-        Optional<TodoStatus> statusOpt = todoStatusRepository.findById(todo.getStatus().getId());
+        Optional<TodoStatus> statusOpt = todoStatusRepository.findByName(todo.getStatus().getName());
         if (statusOpt.isEmpty()) {
             throw new IllegalArgumentException("Invalid Status");
         }
