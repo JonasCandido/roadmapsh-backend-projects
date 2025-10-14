@@ -8,6 +8,8 @@ import br.com.jonascandido.todolistapi.internal.user.UserRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TodoService {
 
@@ -23,5 +25,18 @@ public class TodoService {
         this.userRepository = userRepository;
     }
 
+    public Todo createTodo(Todo todo) {
+    
+        if (!userRepository.existsById(todo.getUser().getId())) {
+            throw new IllegalArgumentException("Invalid User");
+        }
+        Optional<TodoStatus> statusOpt = todoStatusRepository.findById(todo.getStatus().getId());
+        if (statusOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid Status");
+        }
+
+        todo.setStatus(statusOpt.get());
+        return todoRepository.save(todo);
+    }
     
 }
