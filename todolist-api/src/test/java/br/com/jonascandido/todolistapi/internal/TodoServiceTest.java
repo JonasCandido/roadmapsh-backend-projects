@@ -5,9 +5,14 @@ import br.com.jonascandido.todolistapi.internal.todostatus.*;
 import br.com.jonascandido.todolistapi.internal.user.*;
 
 import org.springframework.util.ReflectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import jakarta.persistence.EntityNotFoundException; 
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.lang.reflect.Field;
 
@@ -73,9 +78,7 @@ class TodoServiceTest {
        TodoStatus pendingStatus = new TodoStatus("Pending");
        Todo todo = new Todo("Laundry", "Do laundry", user, pendingStatus);
 
-       Field idField = ReflectionUtils.findField(Todo.class, "id");
-       ReflectionUtils.makeAccessible(idField);
-       ReflectionUtils.setField(idField, todo, 1);
+       setId(todo, 1);
 
        when(userRepository.existsById(user.getId())).thenReturn(true);
     
@@ -126,5 +129,38 @@ class TodoServiceTest {
         assertThrows(EntityNotFoundException.class, () -> todoService.update(1, todo));
 
         verify(todoRepository, never()).save(any(Todo.class));
-    }    
+    }
+
+
+    @Test
+    void shouldReturnPaginatedTodos() throws Exception {
+        User user  = new User("Charlie", "charlie@example.com", "123456");
+        TodoStatus pendingStatus = new TodoStatus("Pending");
+        TodoStatus completedStatus = new TodoStatus("Completed");
+        
+        Todo todo1 = new Todo("Buy groceries", "Buy milk, eggs, bread", user, pendingStatus);
+        Todo todo2 = new Todo("Pay bills", "Pay electricity and water bills", user, completedStatus);
+
+        setId(todo1, 1);
+        setId(todo2, 2);
+
+        List<Todo> todos = Arrays.asList(todo1, todo2);
+        Page<Todo> todosPage = new PageImpl<>(todos);
+
+        when(todoRepository.findAll(PageRequest.of(0, 10))).thenReturn(todosPage);
+
+        Page<Todo> result = todoService.getTodos(1, 10);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals("Buy groceries", result.getContent().get(0).getTitle());
+        assertEquals("Pay bills", result.getContent().get(1).getTitle());
+
+        verify(todoRepository, times(1)).findAll(PageRequest.of(0, 10));
+    }
+    
+    private void setId(Todo todo, Integer id) {
+        Field idField = ReflectionUtils.findField(Todo.class, "id");
+        ReflectionUtils.makeAccessible(idField);
+        ReflectionUtils.setField(idField, todo, id);
+    }
 }

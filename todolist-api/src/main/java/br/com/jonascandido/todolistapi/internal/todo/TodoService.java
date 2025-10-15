@@ -6,6 +6,8 @@ import br.com.jonascandido.todolistapi.internal.todo.TodoRepository;
 import br.com.jonascandido.todolistapi.internal.todostatus.TodoStatusRepository;
 import br.com.jonascandido.todolistapi.internal.user.UserRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -57,5 +59,9 @@ public class TodoService {
         Todo todo = todoRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Todo not found"));
         todoRepository.delete(todo);
+    }
+
+    public Page<Todo> getTodos(int page, int limit) {
+        return todoRepository.findAll(PageRequest.of(page - 1, limit));
     }
 }
