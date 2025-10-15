@@ -46,9 +46,16 @@ public class TodoService {
 
         todo.setTitle(updatedTodo.getTitle());
         todo.setDescription(updatedTodo.getDescription());
-        todo.setStatus(updatedTodo.getStatus());
+        TodoStatus status = todoStatusRepository.findByName(updatedTodo.getStatus().getName())
+            .orElseThrow(() -> new EntityNotFoundException("TodoStatus not found"));
+        todo.setStatus(status);
 
         return todoRepository.save(todo);
     }
 
+    public void delete(Integer id) {
+        Todo todo = todoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Todo not found"));
+        todoRepository.delete(todo);
+    }
 }

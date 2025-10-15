@@ -74,10 +74,6 @@ public class Todo {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public TodoStatus getStatus() {
         return status;
     }

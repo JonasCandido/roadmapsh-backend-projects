@@ -6,6 +6,8 @@ import br.com.jonascandido.todolistapi.internal.user.*;
 
 import org.springframework.util.ReflectionUtils;
 
+import jakarta.persistence.EntityNotFoundException; 
+
 import java.util.Optional;
 import java.lang.reflect.Field;
 
@@ -21,7 +23,6 @@ class TodoServiceTest {
     private UserRepository userRepository;
     private TodoStatusRepository todoStatusRepository;
     private TodoService todoService;
-    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -29,7 +30,6 @@ class TodoServiceTest {
     	todoRepository = mock(TodoRepository.class);
         userRepository = mock(UserRepository.class);
         todoService = new TodoService(todoRepository, todoStatusRepository, userRepository);
-        userService = new UserService(userRepository);
     }
 
     @Test
@@ -56,6 +56,17 @@ class TodoServiceTest {
     	verify(todoRepository).save(todo);
    }
 
+    @Test
+    void testDeleteTodo_Success() {
+        Todo todo = new Todo("Laundry", "Do laundry", new User("Charlie", "charlie@example.com", "123456"), new TodoStatus("Pending"));
+        when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
+
+        todoService.delete(1);
+
+        verify(todoRepository, times(1)).delete(todo);
+    }
+
+    
    @Test
    void testUpdateTodo_Success(){
        User user = new User("Charlie", "charlie@example.com", "123456");
@@ -73,8 +84,6 @@ class TodoServiceTest {
 
        when(todoRepository.save(any(Todo.class))).thenAnswer(i -> i.getArgument(0));
 
-       Todo savedTodo = todoService.createTodo(todo);
-
        
        TodoStatus completedStatus = new TodoStatus("Completed");
        Todo updated = new Todo("Laundry", "Do laundry", user, completedStatus);
@@ -89,4 +98,33 @@ class TodoServiceTest {
        assertEquals(updated.getTitle(), result.getTitle());
        assertEquals(user, result.getUser());
    }
+
+    @Test
+    void testUpdateTodo_NotFound() {
+        User user = new User("Charlie", "charlie@example.com", "123456");
+        TodoStatus completedStatus = new TodoStatus("Completed");
+        Todo updated = new Todo("Laundry", "Do laundry", user, completedStatus);
+
+        when(todoRepository.findById(99)).thenReturn(Optional.empty());
+        
+        assertThrows(EntityNotFoundException.class, () -> todoService.update(99, updated));
+
+        verify(todoRepository, never()).save(any(Todo.class));
+    }
+
+    @Test
+    void testUpdateTodo_StatusNotFound() {
+        User user = new User("Charlie", "charlie@example.com", "123456");
+        TodoStatus invalidStatus = new TodoStatus("Nonexistent");
+        Todo todo = new Todo("Laundry", "Do laundry", user, invalidStatus);
+
+        when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
+        
+        when(todoStatusRepository.findByName(invalidStatus.getName()))
+            .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> todoService.update(1, todo));
+
+        verify(todoRepository, never()).save(any(Todo.class));
+    }    
 }
