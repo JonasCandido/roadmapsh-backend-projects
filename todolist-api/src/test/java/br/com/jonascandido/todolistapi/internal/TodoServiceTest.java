@@ -4,7 +4,10 @@ import br.com.jonascandido.todolistapi.internal.todo.*;
 import br.com.jonascandido.todolistapi.internal.todostatus.*;
 import br.com.jonascandido.todolistapi.internal.user.*;
 
+import org.springframework.util.ReflectionUtils;
+
 import java.util.Optional;
+import java.lang.reflect.Field;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,5 +54,39 @@ class TodoServiceTest {
     	verify(userRepository).existsById(user.getId());
     	verify(todoStatusRepository).findByName(pendingStatus.getName());
     	verify(todoRepository).save(todo);
+   }
+
+   @Test
+   void testUpdateTodo_Success(){
+       User user = new User("Charlie", "charlie@example.com", "123456");
+       TodoStatus pendingStatus = new TodoStatus("Pending");
+       Todo todo = new Todo("Laundry", "Do laundry", user, pendingStatus);
+
+       Field idField = ReflectionUtils.findField(Todo.class, "id");
+       ReflectionUtils.makeAccessible(idField);
+       ReflectionUtils.setField(idField, todo, 1);
+
+       when(userRepository.existsById(user.getId())).thenReturn(true);
+    
+       when(todoStatusRepository.findByName(pendingStatus.getName()))
+        	.thenReturn(Optional.of(pendingStatus));
+
+       when(todoRepository.save(any(Todo.class))).thenAnswer(i -> i.getArgument(0));
+
+       Todo savedTodo = todoService.createTodo(todo);
+
+       
+       TodoStatus completedStatus = new TodoStatus("Completed");
+       Todo updated = new Todo("Laundry", "Do laundry", user, completedStatus);
+
+       when(todoStatusRepository.findByName(completedStatus.getName()))
+        	.thenReturn(Optional.of(completedStatus));
+
+       when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
+
+       Todo result = todoService.update(1, updated);
+
+       assertEquals(updated.getTitle(), result.getTitle());
+       assertEquals(user, result.getUser());
    }
 }
