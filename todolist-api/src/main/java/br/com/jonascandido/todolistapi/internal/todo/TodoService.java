@@ -7,6 +7,7 @@ import br.com.jonascandido.todolistapi.internal.todostatus.TodoStatusRepository;
 import br.com.jonascandido.todolistapi.internal.user.UserRepository;
 
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.Optional;
 
@@ -38,5 +39,16 @@ public class TodoService {
         todo.setStatus(statusOpt.get());
         return todoRepository.save(todo);
     }
-    
+
+    public Todo update(Integer id, Todo updatedTodo) {
+        Todo todo = todoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Todo not found"));
+
+        todo.setTitle(updatedTodo.getTitle());
+        todo.setDescription(updatedTodo.getDescription());
+        todo.setStatus(updatedTodo.getStatus());
+
+        return todoRepository.save(todo);
+    }
+
 }
