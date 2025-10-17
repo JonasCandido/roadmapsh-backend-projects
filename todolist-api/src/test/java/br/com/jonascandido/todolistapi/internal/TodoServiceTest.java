@@ -71,6 +71,15 @@ class TodoServiceTest {
         verify(todoRepository, times(1)).delete(todo);
     }
 
+    @Test
+    void testDeleteTodo_TodoNotFound() {
+        when(todoRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> todoService.delete(1));
+
+        verify(todoRepository, never()).delete(any());
+    }
+
     
    @Test
    void testUpdateTodo_Success(){
